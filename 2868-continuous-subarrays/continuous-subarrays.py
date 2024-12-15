@@ -1,26 +1,29 @@
-from sortedcontainers import SortedList
-
 class Solution(object):
     def continuousSubarrays(self, nums):
-        """
-        :type nums: List[int]
-        :rtype: int
-        """
-        n = len(nums)
-        start = 0
-        total_count = 0
-        window = SortedList()
+        maxQ = deque()
+        minQ = deque()
+        left = 0
+        res = 0
 
-        for end in range(n):
-            # Add the current element to the window
-            window.add(nums[end])
+        for right in range(len(nums)):
+            while maxQ and nums[maxQ[-1]] < nums[right]:
+                maxQ.pop()
 
-            # Ensure the window is valid
-            while window[-1] - window[0] > 2:
-                window.remove(nums[start])
-                start += 1
+            maxQ.append(right)
 
-            # All subarrays ending at `end` are valid
-            total_count += (end - start + 1)
+            while minQ and nums[minQ[-1]] > nums[right]:
+                minQ.pop()
 
-        return total_count
+            minQ.append(right)
+
+            while nums[maxQ[0]] - nums[minQ[0]] > 2:
+                if maxQ[0] < minQ[0]:
+                    left = maxQ[0] + 1
+                    maxQ.popleft()
+                else:
+                    left = minQ[0] + 1
+                    minQ.popleft()
+
+            res += right - left + 1
+
+        return res
